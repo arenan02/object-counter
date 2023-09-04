@@ -42,6 +42,13 @@ def prod_count_action() -> CountDetectedObjects:
 
 
 def get_count_action() -> CountDetectedObjects:
+    """Object count.
+
+    Returns
+    -------
+    CountDetectedObjects
+        An instance of object count.
+    """
     env = os.environ.get("ENV", "dev")
     count_action_fn = f"{env}_count_action"
     return globals()[count_action_fn]()
@@ -57,7 +64,14 @@ def prod_detection_action() -> DetectObjects:
     return DetectObjects(TFSObjectDetector(tfs_host, tfs_port, "rfcn"))
 
 
-def get_detection_action():
+def get_detection_action() -> DetectObjects:
+    """Object detection.
+
+    Returns
+    -------
+    DetectObjects
+        An instance of object detection.
+    """
     env = os.environ.get("ENV", "dev")
     detection_action_fn = f"{env}_detection_action"
     return globals()[detection_action_fn]()

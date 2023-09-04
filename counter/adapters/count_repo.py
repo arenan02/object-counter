@@ -97,11 +97,10 @@ SELECT object_class, count
 FROM {self.__table}
 """
         if object_classes:
-            query = f"""
-SELECT object_class, count
-FROM {self.__table}
-WHERE object_class IN ({','.join(map(lambda x: "'" + x + "'", object_classes))})
-"""
+            query = query + (
+                f"""WHERE object_class IN """
+                f"""({','.join(map(lambda x: "'" + x + "'", object_classes))})"""
+            )
         cursor.execute(query)
         counters = cursor.fetchall()
         object_counts = [ObjectCount(counter[0], counter[1]) for counter in counters]

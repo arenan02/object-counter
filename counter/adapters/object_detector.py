@@ -23,7 +23,26 @@ class FakeObjectDetector(ObjectDetector):
 
 
 class TFSObjectDetector(ObjectDetector):
-    def __init__(self, host, port, model):
+    """Tensorflow Serving object detector.
+
+    Parameters
+    ----------
+    host : str
+        Tensorflow serving hostname.
+    port : int
+        Tensorflow serving port.
+    model : str
+        Object detection model name.
+
+    Attributes
+    ----------
+    url : str
+        Tensorflow serving URL.
+    classes_dict : dict[int, str]
+        Object detection model classes.
+    """
+
+    def __init__(self, host: str, port: int, model: str):
         self.url = f"http://{host}:{port}/v1/models/{model}:predict"
         self.classes_dict = self.__build_classes_dict()
 

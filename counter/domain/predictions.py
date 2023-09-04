@@ -4,11 +4,37 @@ from typing import List
 from counter.domain.models import ObjectCount, Prediction
 
 
-def over_threshold(predictions: List[Prediction], threshold: float):
+def over_threshold(predictions: List[Prediction], threshold: float) -> List[Prediction]:
+    """Filter predictions over the threshold.
+
+    Parameters
+    ----------
+    predictions : List[Prediction]
+        Model predictions.
+    threshold : float
+        Model prediction score threshold.
+
+    Returns
+    -------
+    List[Prediction]
+        Filtered model predictions.
+    """
     return filter(lambda prediction: prediction.score >= threshold, predictions)
 
 
 def count(predictions: List[Prediction]) -> List[ObjectCount]:
+    """Count predictions.
+
+    Parameters
+    ----------
+    predictions : List[Prediction]
+        Model predictions.
+
+    Returns
+    -------
+    List[ObjectCount]
+        Object count.
+    """
     object_classes = map(lambda prediction: prediction.class_name, predictions)
     object_classes_counter = reduce(__count_object_classes, object_classes, {})
     return [
