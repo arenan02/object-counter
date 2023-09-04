@@ -39,8 +39,22 @@ docker run \
     -e OMP_NUM_THREADS=$num_physical_cores \
     -e TENSORFLOW_INTER_OP_PARALLELISM=2 \
     -e TENSORFLOW_INTRA_OP_PARALLELISM=$num_physical_cores \
-    intel/intel-optimized-tensorflow-serving:2.3.0
+    intel/intel-optimized-tensorflow-serving:2.8.0
     
+```
+
+### On Windows AMD Processor
+
+```
+set model_name=rfcn
+docker run ^
+    --name=tfserving ^
+    -t ^
+    --rm ^
+    -p 8501:8501 ^
+    -v "%cd%\tmp\model:/models/%model_name%" ^
+    -e MODEL_NAME=%model_name% ^
+    tensorflow/serving &
 ```
 
 
@@ -48,9 +62,14 @@ docker run \
 
 ```bash
 docker rm -f test-mongo
-docker run --name test-mongo --rm --net host -d mongo:latest
+docker run --name test-8mongo -d -p 27017:27017 mongo:latest
 ```
 
+## Run MySQL
+
+```bash
+docker run --name test-mysql -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_ROOT_HOST=% -d mysql/mysql-server:latest
+```
 
 ## Setup virtualenv
 
@@ -79,6 +98,9 @@ ENV=prod python -m counter.entrypoints.webapp
  curl -F "threshold=0.9" -F "file=@resources/images/boy.jpg" http://0.0.0.0:5000/object-count
  curl -F "threshold=0.9" -F "file=@resources/images/cat.jpg" http://0.0.0.0:5000/object-count
  curl -F "threshold=0.9" -F "file=@resources/images/food.jpg" http://0.0.0.0:5000/object-count
+ curl -F "threshold=0.9" -F "file=@resources/images/boy.jpg" http://0.0.0.0:5000/object-detection
+ curl -F "threshold=0.9" -F "file=@resources/images/cat.jpg" http://0.0.0.0:5000/object-detection
+ curl -F "threshold=0.9" -F "file=@resources/images/food.jpg" http://0.0.0.0:5000/object-detection
 ```
 
 ## Run the tests
