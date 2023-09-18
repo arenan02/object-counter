@@ -4,7 +4,6 @@ from flask import Flask, request, jsonify
 
 from counter import config
 
-# Leo: I needed to instantiate in this method, so I can initiate in the tests.
 def create_app():
     
     app = Flask(__name__)
@@ -24,8 +23,6 @@ def create_app():
     
     return app
 
-
-# Leo: Also, I'm not sure if this is the best way of doing this.I'll leave it as it was, just in case.
 if __name__ == '__main__':
     app = create_app()
     app.run('0.0.0.0', debug=True)
