@@ -4,7 +4,7 @@ from pymongo import MongoClient
 
 from counter.domain.models import ObjectCount
 from counter.domain.ports import ObjectCountRepo
-
+from counter.adapters.alchemy_engine import ObjectCount_PG, engine
 
 class CountInMemoryRepo(ObjectCountRepo):
 
@@ -54,3 +54,23 @@ class CountMongoDBRepo(ObjectCountRepo):
         for value in new_values:
             counter_col.update_one({'object_class': value.object_class}, {'$inc': {'count': value.count}}, upsert=True)
 
+class CountPostgreSQLRepo(ObjectCountRepo):
+
+    def __init__(self, db_url):
+        self.engine, self.session = engine(db_url)
+
+    def read_values(self, object_classes: List[str] = None) -> List[ObjectCount]:
+        query = self.session.query(ObjectCount_PG)
+        if object_classes:
+            query = query.filter(ObjectCount_PG.object_class.in_(object_classes))
+        return query.all()
+
+    def update_values(self, new_values: List[ObjectCount]):
+        for value in new_values:
+            existing_count = self.session.query(ObjectCount_PG).filter_by(object_class=value.object_class).first()
+            if existing_count:
+                existing_count.count += value.count
+            else:
+                new_count = ObjectCount_PG(object_class=value.object_class, count=value.count)
+                self.session.add(new_count)
+        self.session.commit()

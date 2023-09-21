@@ -1,0 +1,61 @@
+version: '3.2'
+
+services:
+
+  tfserving:
+    container_name: tfserving
+    image: intel/intel-optimized-tensorflow-serving:2.8.0
+    ports:
+      - "8500:8500"
+      - "8501:8501"
+    volumes:
+      - "./tmp/model:/models"
+    environment:
+      - OMP_NUM_THREADS=${OMP_NUM_THREADS:-$((cores_per_socket * num_sockets))}
+      - TENSORFLOW_INTER_OP_PARALLELISM=2
+      - TENSORFLOW_INTRA_OP_PARALLELISM=${TENSORFLOW_INTRA_OP_PARALLELISM:-$((cores_per_socket * num_sockets))}
+    command: --model_config_file=/models/model_config.config
+
+    mongo-db:
+      container_name: mongo-db
+      image: mongo:latest
+      ports:
+        - "27017:27017"
+
+    postgres:
+      image: postgres:14.1-alpine
+      restart: always
+      environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=postgres
+        - POSTGRES_DB= OBJ_COUNT
+      ports:
+        - '5432:5432'
+      volumes: 
+        - db:/var/lib/postgresql/data
+
+    app:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      ports:
+        - "8000:8000"
+      environment:
+        - TFS_HOST: "tfserving"
+        - TFS_PORT: "8501"
+        - MONGO_HOST: "mongo-db"
+        - MONGO_PORT: "27017"
+        - MONGO_DB: "prod_counter"
+        - ENV: "prod"
+        - db_type: "postgres"
+        - db_url: "postgres://postgres:postgres@postgres:5432/OBJ_COUNT"
+      volumes:
+        - ./tmp:/app/counter/tmp
+      depends:
+        - mongo-db
+        - postgres
+        - tfserving
+
+volumes:
+  postgres:
+    driver: local
