@@ -1,3 +1,20 @@
+
+# Automated process
+
+I have implemented the docker-compose, multi environment testing, authentication, addtional adapters, precommit git actions.
+
+Please follow the below steps:
+
+To access the docker-compose:
+
+Docker-compose up --build -d
+
+To access pre commit git actions:
+
+pre-commit install 
+
+then push the changes to git
+
 # NIQ Innovation Enablement - Challenge 1 (Object Counting)
 
 The goal of this repo is demonstrate how to apply Hexagonal Architecture in a ML based system.
@@ -31,8 +48,8 @@ rm -rf tmp/rfcn_resnet101_coco_2018_01_28
 ## Setup and run Tensorflow Serving
 
 ```
-
 # For unix systems
+
 cores_per_socket=`lscpu | grep "Core(s) per socket" | cut -d':' -f2 | xargs`
 num_sockets=`lscpu | grep "Socket(s)" | cut -d':' -f2 | xargs`
 num_physical_cores=$((cores_per_socket * num_sockets))
@@ -43,11 +60,13 @@ docker run \
     -p 8500:8500 \
     -p 8501:8501 \
     -v "$(pwd)\tmp\model:/models" \
-    -e OMP_NUM_THREADS=$num_physical_cores \
+    -e OMP_NUM_THREADS=$num_physical_cores \ 
     -e TENSORFLOW_INTER_OP_PARALLELISM=2 \
     -e TENSORFLOW_INTRA_OP_PARALLELISM=$num_physical_cores \
-    intel/intel-optimized-tensorflow-serving:2.8.0 \
+    suraaga/tensorflow-serving:1.13.0-ubuntu16 \
     --model_config_file=/models/model_config.config
+
+docker pull suraaga/tensorflow-serving:1.13.0-ubuntu16
 
 # For Windows (Powershell)
 $num_physical_cores=(Get-WmiObject Win32_Processor | Select-Object NumberOfCores).NumberOfCores

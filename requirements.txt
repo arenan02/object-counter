@@ -3,4 +3,11 @@ Pillow==9.5.0
 requests==2.25.1
 pymongo==3.11.3
 Flask==2.3.3
-pytest==6.2.2
+fastapi==0.103.1
+uvicorn==0.23.2
+sqlalchemy==2.0.21
+python-multipart==0.0.6
+fastapi-limiter==0.1.5
+requests==4.0.0
+python-jose==3.3.0
+passlib==1.7.4
