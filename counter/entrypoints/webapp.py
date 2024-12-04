@@ -15,7 +15,7 @@ def create_app():
         
         threshold = float(request.form.get('threshold', 0.5))
         uploaded_file = request.files['file']
-        model_name = request.form.get('model_name', "rfcn")
+        request.form.get('model_name', "rfcn")
         image = BytesIO()
         uploaded_file.save(image)
         count_response = count_action.execute(image, threshold)

@@ -39,4 +39,4 @@ def test_object_detection(client, image_path):
     # Check that the count_action was called with the correct arguments and
     # and status code is correct(Integration test)
     assert response.status_code == 200
-    assert json.loads(response.data) != None
+    assert json.loads(response.data) is not None
