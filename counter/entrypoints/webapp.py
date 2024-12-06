@@ -21,6 +21,26 @@ def create_app():
         count_response = count_action.execute(image, threshold)
         return jsonify(count_response)
     
+    @app.route('/predict', methods=['POST'])
+    def predict():
+        """
+        This is the endpoint to return predictions for objects detected in the image
+        """
+        # Get the threshold and model name from the request
+        threshold = float(request.form.get('threshold', 0.5))
+        uploaded_file = request.files['file']
+
+        if not uploaded_file:
+            return jsonify({'error': 'No file uploaded'}), 400
+        
+        # Read image file into memory
+        image = BytesIO()
+        uploaded_file.save(image)
+
+        # Call the count action to get the count of objects detected
+        predictions = count_action.predict(image, threshold)
+        return jsonify(predictions)
+    
     return app
 
 if __name__ == '__main__':

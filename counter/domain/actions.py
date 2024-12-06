@@ -25,6 +25,10 @@ class CountDetectedObjects:
         self.__debug_image(image, valid_predictions, f"valid_predictions_with_threshold_{threshold}.jpg")
         return valid_predictions
 
+    def predict(self, image, threshold):
+        predictions = self.__find_valid_predictions(image, threshold)
+        return predictions
+
     @staticmethod
     def __debug_image(image, predictions, image_name):
         if __debug__ and image is not None:
