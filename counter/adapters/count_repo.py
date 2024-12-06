@@ -7,7 +7,6 @@ from counter.domain.ports import ObjectCountRepo
 
 
 class CountInMemoryRepo(ObjectCountRepo):
-
     def __init__(self):
         self.store = dict()
 
@@ -22,13 +21,14 @@ class CountInMemoryRepo(ObjectCountRepo):
             key = new_object_count.object_class
             try:
                 stored_object_count = self.store[key]
-                self.store[key] = ObjectCount(key, stored_object_count.count + new_object_count.count)
+                self.store[key] = ObjectCount(
+                    key, stored_object_count.count + new_object_count.count
+                )
             except KeyError:
                 self.store[key] = ObjectCount(key, new_object_count.count)
 
 
 class CountMongoDBRepo(ObjectCountRepo):
-
     def __init__(self, host, port, database):
         self.__host = host
         self.__port = port
@@ -46,11 +46,14 @@ class CountMongoDBRepo(ObjectCountRepo):
         counters = counter_col.find(query)
         object_counts = []
         for counter in counters:
-            object_counts.append(ObjectCount(counter['object_class'], counter['count']))
+            object_counts.append(ObjectCount(counter["object_class"], counter["count"]))
         return object_counts
 
     def update_values(self, new_values: List[ObjectCount]):
         counter_col = self.__get_counter_col()
         for value in new_values:
-            counter_col.update_one({'object_class': value.object_class}, {'$inc': {'count': value.count}}, upsert=True)
-
+            counter_col.update_one(
+                {"object_class": value.object_class},
+                {"$inc": {"count": value.count}},
+                upsert=True,
+            )
