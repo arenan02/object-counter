@@ -4,12 +4,13 @@ from counter.domain.models import ObjectCount
 
 # Database configuration for tests
 TEST_DB_CONFIG = {
-    "host": "localhost",       # Replace with Docker host or localhost
-    "port": 5400,              # Port where PostgreSQL is running
+    "host": "localhost",  # Replace with Docker host or localhost
+    "port": 5400,  # Port where PostgreSQL is running
     "database": "test_object_db",
     "user": "postgres",
     "password": "postgres",
 }
+
 
 @pytest.fixture
 def repo():
@@ -24,6 +25,7 @@ def repo():
     )
     yield repo
     repo.close_connection()
+
 
 def test_update_and_read_values(repo):
     """
@@ -46,6 +48,7 @@ def test_update_and_read_values(repo):
     assert results[1].object_class == "dog"
     assert results[1].count == 1
 
+
 def test_read_values_with_filter(repo):
     """
     Test filtering object counts by object classes.
@@ -67,6 +70,7 @@ def test_read_values_with_filter(repo):
     assert filtered_results[0].count == 2
     assert filtered_results[1].object_class == "car"
     assert filtered_results[1].count == 3
+
 
 def test_update_overwrites_existing_values(repo):
     """

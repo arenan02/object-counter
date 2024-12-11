@@ -2,14 +2,11 @@ import os
 from typing import List
 from counter.domain.models import ObjectCount
 from counter.domain.ports import ObjectCountRepo
+from pymongo import MongoClient
+import psycopg2
 
 from dotenv import load_dotenv
 load_dotenv()
-
-from pymongo import MongoClient
-
-import psycopg2
-from psycopg2.extras import Json
 
 class CountInMemoryRepo(ObjectCountRepo):
     def __init__(self):
@@ -62,6 +59,7 @@ class CountMongoDBRepo(ObjectCountRepo):
                 {"$inc": {"count": value.count}},
                 upsert=True,
             )
+
 
 class CountSQLDBRepo(ObjectCountRepo):
     def __init__(self, host: str, port: int, database: str):
@@ -121,7 +119,9 @@ class CountSQLDBRepo(ObjectCountRepo):
                     cursor.execute(query)
 
                 results = cursor.fetchall()
-                return [ObjectCount(object_class=row[0], count=row[1]) for row in results]
+                return [
+                    ObjectCount(object_class=row[0], count=row[1]) for row in results
+                ]
         except psycopg2.Error as e:
             raise RuntimeError(f"Database error: {e}")
 
