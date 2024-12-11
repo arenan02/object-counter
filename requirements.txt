@@ -6,4 +6,4 @@ Flask==2.3.3
 pytest==6.2.2
 ruff
 python-dotenv
-psycopg2
+psycopg2-binary

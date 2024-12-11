@@ -88,13 +88,13 @@ class CountSQLDBRepo(ObjectCountRepo):
         try:
             with self.conn.cursor() as cursor:
                 query = """
-                INSERT INTO object_counts (image_id, object_counts)
+                INSERT INTO object_counts (object_class, count)
                 VALUES (%s, %s)
-                ON CONFLICT (image_id) DO UPDATE
-                SET object_counts = EXCLUDED.object_counts;
+                ON CONFLICT (object_class) DO UPDATE
+                SET count = EXCLUDED.count;
                 """
                 for obj in new_values:
-                    cursor.execute(query, (obj.image_id, Json(obj.counts)))
+                    cursor.execute(query, (obj.object_class, obj.count))
             self.conn.commit()
         except psycopg2.Error as e:
             self.conn.rollback()
@@ -102,7 +102,7 @@ class CountSQLDBRepo(ObjectCountRepo):
 
     def read_values(self, object_classes: List[str] = None) -> List[ObjectCount]:
         """
-        Retrieve object detection results filtered by object classes.
+        Retrieve object counts filtered by object classes.
 
         :param object_classes: Optional list of object classes to filter results.
         :return: A list of ObjectCount objects.
@@ -111,17 +111,17 @@ class CountSQLDBRepo(ObjectCountRepo):
             with self.conn.cursor() as cursor:
                 if object_classes:
                     query = """
-                    SELECT image_id, object_counts
+                    SELECT object_class, count
                     FROM object_counts
-                    WHERE object_classes && %s;
+                    WHERE object_class = ANY(%s);
                     """
                     cursor.execute(query, (object_classes,))
                 else:
-                    query = "SELECT image_id, object_counts FROM object_counts;"
+                    query = "SELECT object_class, count FROM object_counts;"
                     cursor.execute(query)
 
                 results = cursor.fetchall()
-                return [ObjectCount(image_id=row[0], counts=row[1]) for row in results]
+                return [ObjectCount(object_class=row[0], count=row[1]) for row in results]
         except psycopg2.Error as e:
             raise RuntimeError(f"Database error: {e}")
 
