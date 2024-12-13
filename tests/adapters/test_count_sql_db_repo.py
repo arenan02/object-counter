@@ -1,30 +1,32 @@
 import pytest
+from dotenv import load_dotenv
+import os
 from counter.adapters.count_repo import CountSQLDBRepo
 from counter.domain.models import ObjectCount
 
-# Database configuration for tests
-TEST_DB_CONFIG = {
-    "host": "localhost",  # Replace with Docker host or localhost
-    "port": 5400,  # Port where PostgreSQL is running
-    "database": "test_object_db",
-    "user": "postgres",
-    "password": "postgres",
-}
-
+# Load environment variables from the .env file
+load_dotenv()
 
 @pytest.fixture
 def repo():
     """
     Fixture to initialize the CountSQLDBRepo with the test database.
-    Ensures cleanup after each test.
+    Ensures cleanup before each test.
     """
     repo = CountSQLDBRepo(
-        host=TEST_DB_CONFIG["host"],
-        port=TEST_DB_CONFIG["port"],
-        database=TEST_DB_CONFIG["database"],
+        host=os.getenv("DB_HOST"),
+        port=int(os.getenv("DB_PORT")),
+        database=os.getenv("DB_NAME"),
     )
+    # Cleanup before each test
+    with repo.conn.cursor() as cursor:
+        cursor.execute("TRUNCATE TABLE object_counts;")
+    repo.conn.commit()
     yield repo
-    repo.close_connection()
+    # Optional: Additional cleanup after each test
+    with repo.conn.cursor() as cursor:
+        cursor.execute("TRUNCATE TABLE object_counts;")
+    repo.conn.commit()
 
 
 def test_update_and_read_values(repo):

@@ -6,7 +6,9 @@ from pymongo import MongoClient
 import psycopg2
 
 from dotenv import load_dotenv
+
 load_dotenv()
+
 
 class CountInMemoryRepo(ObjectCountRepo):
     def __init__(self):
