@@ -2,6 +2,7 @@
 .venv
 spikes
 *.pyc
+*.env
 
 # Personal notes
 notes.md

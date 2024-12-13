@@ -1,9 +1,13 @@
+import os
 from typing import List
-
-from pymongo import MongoClient
-
 from counter.domain.models import ObjectCount
 from counter.domain.ports import ObjectCountRepo
+from pymongo import MongoClient
+import psycopg2
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class CountInMemoryRepo(ObjectCountRepo):
@@ -57,3 +61,80 @@ class CountMongoDBRepo(ObjectCountRepo):
                 {"$inc": {"count": value.count}},
                 upsert=True,
             )
+
+
+class CountSQLDBRepo(ObjectCountRepo):
+    def __init__(self, host: str, port: int, database: str):
+        """
+        Initialize the database connection.
+        """
+        self.__host = host
+        self.__port = port
+        self.__database = database
+        self.conn = psycopg2.connect(
+            dbname=self.__database,
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            host=self.__host,
+            port=self.__port,
+        )
+
+    def update_values(self, new_values: List[ObjectCount]):
+        """
+        Update object counts in the database.
+
+        :param new_values: A list of ObjectCount objects to update.
+        """
+        try:
+            with self.conn.cursor() as cursor:
+                query = """
+                INSERT INTO object_counts (object_class, count)
+                VALUES (%s, %s)
+                ON CONFLICT (object_class) DO UPDATE
+                SET count = EXCLUDED.count;
+                """
+                for obj in new_values:
+                    cursor.execute(query, (obj.object_class, obj.count))
+            self.conn.commit()
+        except psycopg2.Error as e:
+            self.conn.rollback()
+            raise RuntimeError(f"Database error: {e}")
+
+    def read_values(self, object_classes: List[str] = None) -> List[ObjectCount]:
+        """
+        Retrieve object counts filtered by object classes.
+
+        :param object_classes: Optional list of object classes to filter results.
+        :return: A list of ObjectCount objects.
+        """
+        try:
+            with self.conn.cursor() as cursor:
+                if object_classes:
+                    query = """
+                    SELECT object_class, count
+                    FROM object_counts
+                    WHERE object_class = ANY(%s);
+                    """
+                    cursor.execute(query, (object_classes,))
+                else:
+                    query = "SELECT object_class, count FROM object_counts;"
+                    cursor.execute(query)
+
+                results = cursor.fetchall()
+                return [
+                    ObjectCount(object_class=row[0], count=row[1]) for row in results
+                ]
+        except psycopg2.Error as e:
+            raise RuntimeError(f"Database error: {e}")
+
+    def close_connection(self):
+        """
+        Close the database connection.
+        """
+        self.conn.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close_connection()
