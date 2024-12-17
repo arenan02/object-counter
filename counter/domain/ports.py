@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import BinaryIO, List, Dict
+from typing import BinaryIO, List
 
 from counter.domain.models import Prediction, ObjectCount
 
@@ -18,4 +18,3 @@ class ObjectCountRepo(ABC):
     @abstractmethod
     def update_values(self, new_values: List[ObjectCount]):
         raise NotImplementedError
-
