@@ -25,10 +25,10 @@ def test_object_detection(client, image_path):
     with open(image_path, 'rb') as f:
         image_data = f.read()
     image = io.BytesIO(image_data)
-    
+
     data = {
         'threshold': '0.9',
-        'model_name': 'rfcn',
+        'model_name': 'ssd_mobilenet_v2',
     }
     data['file'] = (image, 'test.jpg')
 
